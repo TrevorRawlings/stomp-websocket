@@ -140,6 +140,9 @@ class Client
       # (value in ms)
       incoming: 10000
     }
+    # Send pings 10% faster and allow pongs 10% slower to account for
+    # inaccurate timing in the web browser
+    @heartbeatWindow = 0.10 #10%
     # maximum *WebSocket* frame size sent by the client. If the STOMP frame
     # is bigger than this value, the STOMP frame will be sent using multiple
     # WebSocket frames (default is 16KiB)
@@ -193,6 +196,7 @@ class Client
 
     unless @heartbeat.outgoing == 0 or serverIncoming == 0
       ttl = Math.max(@heartbeat.outgoing, serverIncoming)
+      ttl = ttl - (ttl * @heartbeatWindow);
       @debug? "send PING every #{ttl}ms"
       # The `Stomp.setInterval` is a wrapper to handle regular callback
       # that depends on the runtime environment (Web browser or node.js app)
